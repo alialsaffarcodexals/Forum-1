@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+
+	"strings"
+
 	"time"
 
 	"github.com/google/uuid"
@@ -16,16 +19,33 @@ import (
 
 type Server struct {
 	DB         *sql.DB
-	tmpl       *template.Template
+
+	tmpl       map[string]*template.Template
+
 	CookieName string
 }
 
 func New(db *sql.DB, templateDir string) (*Server, error) {
-	t, err := template.ParseGlob(filepath.Join(templateDir, "*.html"))
+
+	templates := map[string]*template.Template{}
+	layout := filepath.Join(templateDir, "layout.html")
+	pages, err := filepath.Glob(filepath.Join(templateDir, "*.html"))
 	if err != nil {
 		return nil, err
 	}
-	return &Server{DB: db, tmpl: t, CookieName: "session_id"}, nil
+	for _, page := range pages {
+		if filepath.Base(page) == "layout.html" {
+			continue
+		}
+		t, err := template.ParseFiles(layout, page)
+		if err != nil {
+			return nil, err
+		}
+		name := strings.TrimSuffix(filepath.Base(page), ".html")
+		templates[name] = t
+	}
+	return &Server{DB: db, tmpl: templates, CookieName: "session_id"}, nil
+
 }
 
 func (s *Server) routes() http.Handler {
@@ -46,6 +66,18 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.routes().ServeHTTP(w, r)
 }
 
+
+func (s *Server) render(w http.ResponseWriter, name string, data any) {
+	t, ok := s.tmpl[name]
+	if !ok {
+		http.Error(w, "template not found", http.StatusInternalServerError)
+		return
+	}
+	if err := t.ExecuteTemplate(w, "layout", data); err != nil {
+		http.Error(w, "render error", http.StatusInternalServerError)
+	}
+}
+
 func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 	posts, err := models.ListPosts(s.DB, nil)
 	if err != nil {
@@ -54,20 +86,18 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]any{
-		"Content": "index",
-		"Posts":   posts,
-		"User":    s.currentUser(r),
+		"Posts": posts,
+		"User":  s.currentUser(r),
 	}
-	s.tmpl.ExecuteTemplate(w, "layout", data)
+	s.render(w, "index", data)
 
 }
 
 func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
+		s.render(w, "register", map[string]any{"User": s.currentUser(r)})
 
-		s.tmpl.ExecuteTemplate(w, "layout", map[string]any{"Content": "register", "User": s.currentUser(r)})
-n
 	case http.MethodPost:
 		email := r.FormValue("email")
 		username := r.FormValue("username")
@@ -92,7 +122,7 @@ func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 
-		s.tmpl.ExecuteTemplate(w, "layout", map[string]any{"Content": "login", "User": s.currentUser(r)})
+		s.render(w, "login", map[string]any{"User": s.currentUser(r)})
 
 	case http.MethodPost:
 		email := r.FormValue("email")
@@ -136,7 +166,7 @@ func (s *Server) handleNewPost(w http.ResponseWriter, r *http.Request, user *mod
 	switch r.Method {
 	case http.MethodGet:
 
-		s.tmpl.ExecuteTemplate(w, "layout", map[string]any{"Content": "new_post", "User": user})
+		s.render(w, "new_post", map[string]any{"User": user})
 
 	case http.MethodPost:
 		title := r.FormValue("title")
@@ -177,12 +207,12 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 	comments, _ := models.ListComments(s.DB, id)
 
 	data := map[string]any{
-		"Content":  "post",
+
 		"Post":     post,
 		"Comments": comments,
 		"User":     s.currentUser(r),
 	}
-	s.tmpl.ExecuteTemplate(w, "layout", data)
+	s.render(w, "post", data)
 
 }
 
