@@ -1,0 +1,13 @@
+{{define "new_post"}}
+<h2>New Post</h2>
+<form method="post" class="card">
+<label>Title<input class="input" name="title"></label><br>
+<label>Body<textarea class="input" name="body"></textarea></label><br>
+<label>Categories<select multiple name="categories" class="input">
+<option value="1">golang</option>
+<option value="2">sqlite</option>
+<option value="3">general</option>
+</select></label><br>
+<button class="btn btn--primary" type="submit">Create</button>
+</form>
+{{end}}

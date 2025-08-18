@@ -1,0 +1,9 @@
+{{define "index"}}
+<a href="/post/new" class="btn btn--primary">New Post</a>
+{{range .Posts}}
+<div class="card" style="margin-top:20px">
+<h2><a href="/post?id={{.ID}}">{{.Title}}</a></h2>
+<p>{{.Body}}</p>
+</div>
+{{end}}
+{{end}}
