@@ -52,18 +52,22 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error", 500)
 		return
 	}
+
 	data := map[string]any{
 		"Content": "index",
 		"Posts":   posts,
 		"User":    s.currentUser(r),
 	}
 	s.tmpl.ExecuteTemplate(w, "layout", data)
+
 }
 
 func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
+
 		s.tmpl.ExecuteTemplate(w, "layout", map[string]any{"Content": "register", "User": s.currentUser(r)})
+n
 	case http.MethodPost:
 		email := r.FormValue("email")
 		username := r.FormValue("username")
@@ -87,7 +91,9 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
+
 		s.tmpl.ExecuteTemplate(w, "layout", map[string]any{"Content": "login", "User": s.currentUser(r)})
+
 	case http.MethodPost:
 		email := r.FormValue("email")
 		password := r.FormValue("password")
@@ -129,7 +135,9 @@ func (s *Server) handleLogout(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleNewPost(w http.ResponseWriter, r *http.Request, user *models.User) {
 	switch r.Method {
 	case http.MethodGet:
+
 		s.tmpl.ExecuteTemplate(w, "layout", map[string]any{"Content": "new_post", "User": user})
+
 	case http.MethodPost:
 		title := r.FormValue("title")
 		body := r.FormValue("body")
@@ -167,6 +175,7 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	comments, _ := models.ListComments(s.DB, id)
+
 	data := map[string]any{
 		"Content":  "post",
 		"Post":     post,
@@ -174,6 +183,7 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 		"User":     s.currentUser(r),
 	}
 	s.tmpl.ExecuteTemplate(w, "layout", data)
+
 }
 
 func (s *Server) handleComment(w http.ResponseWriter, r *http.Request, user *models.User) {
