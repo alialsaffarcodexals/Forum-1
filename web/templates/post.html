@@ -1,0 +1,23 @@
+{{define "content"}}
+<div class="card">
+<h2>{{.Post.Title}}</h2>
+<p>{{.Post.Body}}</p>
+{{if .User}}
+<form method="post" action="/post/like"><input type="hidden" name="post_id" value="{{.Post.ID}}"><button name="value" value="1" class="btn">Like</button><button name="value" value="-1" class="btn">Dislike</button></form>
+{{end}}
+</div>
+<div>
+<h3>Comments</h3>
+{{range .Comments}}
+<div class="card" style="margin-top:10px"><p>{{.Body}}</p></div>
+{{end}}
+{{if .User}}
+<form method="post" action="/post/comment" class="card" style="margin-top:10px">
+<input type="hidden" name="post_id" value="{{.Post.ID}}">
+<textarea class="input" name="body"></textarea><br>
+<button class="btn btn--primary" type="submit">Comment</button>
+</form>
+{{end}}
+</div>
+{{end}}
+{{template "layout" .}}
