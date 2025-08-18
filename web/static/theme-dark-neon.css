@@ -1,0 +1,75 @@
+:root {
+  --bg: #0b0f14;
+  --bg-soft: #0f1420;
+  --text: #e6f1ff;
+  --muted: #94a3b8;
+  --edge: #1f2937;
+
+  --yellow: #ffd400;
+  --green:  #00ff95;
+  --orange: #ff7a18;
+  --purple: #9b5cff;
+
+  --radius: 14px;
+  --shadow: 0 0 8px;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+a { color: var(--purple); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 24px; }
+
+.card {
+  background: var(--bg-soft);
+  border: 1px solid var(--edge);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 0 0 transparent;
+}
+.card:hover { box-shadow: var(--shadow) rgba(155,92,255,0.35); }
+
+.btn {
+  display: inline-block;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--edge);
+  font-weight: 600;
+  background: transparent;
+  color: var(--text);
+}
+.btn--primary { border-color: var(--green); }
+.btn--primary:hover { box-shadow: var(--shadow) var(--green); }
+.btn--danger  { border-color: var(--orange); }
+.btn--danger:hover { box-shadow: var(--shadow) var(--orange); }
+
+.input, select, textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--edge);
+  background: #0c111b;
+  color: var(--text);
+}
+.input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--purple);
+  box-shadow: var(--shadow) rgba(155,92,255,0.4);
+}
+
+.chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px solid var(--edge);
+  border-radius: 999px;
+  margin-right: 8px;
+}
+.chip--yellow { border-color: var(--yellow); box-shadow: var(--shadow) rgba(255,212,0,0.25); }
+.chip--green  { border-color: var(--green);  box-shadow: var(--shadow) rgba(0,255,149,0.25); }
+.chip--orange { border-color: var(--orange); box-shadow: var(--shadow) rgba(255,122,24,0.25); }
+.chip--purple { border-color: var(--purple); box-shadow: var(--shadow) rgba(155,92,255,0.25); }
+
+.help { color: var(--muted); font-size: 0.9rem; }
+.error { color: var(--orange); }
