@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"path/filepath"
 	"strconv"
+
 	"strings"
+
 	"time"
 
 	"github.com/google/uuid"
@@ -17,11 +19,14 @@ import (
 
 type Server struct {
 	DB         *sql.DB
+
 	tmpl       map[string]*template.Template
+
 	CookieName string
 }
 
 func New(db *sql.DB, templateDir string) (*Server, error) {
+
 	templates := map[string]*template.Template{}
 	layout := filepath.Join(templateDir, "layout.html")
 	pages, err := filepath.Glob(filepath.Join(templateDir, "*.html"))
@@ -40,6 +45,7 @@ func New(db *sql.DB, templateDir string) (*Server, error) {
 		templates[name] = t
 	}
 	return &Server{DB: db, tmpl: templates, CookieName: "session_id"}, nil
+
 }
 
 func (s *Server) routes() http.Handler {
@@ -60,6 +66,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.routes().ServeHTTP(w, r)
 }
 
+
 func (s *Server) render(w http.ResponseWriter, name string, data any) {
 	t, ok := s.tmpl[name]
 	if !ok {
@@ -77,17 +84,20 @@ func (s *Server) handleIndex(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "error", 500)
 		return
 	}
+
 	data := map[string]any{
 		"Posts": posts,
 		"User":  s.currentUser(r),
 	}
 	s.render(w, "index", data)
+
 }
 
 func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		s.render(w, "register", map[string]any{"User": s.currentUser(r)})
+
 	case http.MethodPost:
 		email := r.FormValue("email")
 		username := r.FormValue("username")
@@ -111,7 +121,9 @@ func (s *Server) handleRegister(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
+
 		s.render(w, "login", map[string]any{"User": s.currentUser(r)})
+
 	case http.MethodPost:
 		email := r.FormValue("email")
 		password := r.FormValue("password")
@@ -153,7 +165,9 @@ func (s *Server) handleLogout(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleNewPost(w http.ResponseWriter, r *http.Request, user *models.User) {
 	switch r.Method {
 	case http.MethodGet:
+
 		s.render(w, "new_post", map[string]any{"User": user})
+
 	case http.MethodPost:
 		title := r.FormValue("title")
 		body := r.FormValue("body")
@@ -191,12 +205,15 @@ func (s *Server) handlePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	comments, _ := models.ListComments(s.DB, id)
+
 	data := map[string]any{
+
 		"Post":     post,
 		"Comments": comments,
 		"User":     s.currentUser(r),
 	}
 	s.render(w, "post", data)
+
 }
 
 func (s *Server) handleComment(w http.ResponseWriter, r *http.Request, user *models.User) {
