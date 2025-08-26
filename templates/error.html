@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Error {{.StatusCode}}</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <style>
+        .error-container {
+            max-width: 500px;
+            width: 95vw;
+            margin: 10vh auto;
+            background: #191414;
+            padding: 6vw 5vw;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(255, 0, 0, 0.5);
+            color: #ff6b6b;
+            text-align: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+        .error-container h1 {
+            font-size: clamp(2rem, 7vw, 3rem);
+            margin-bottom: 20px;
+            color: #ff4c4c;
+        }
+        .error-container p {
+            font-size: 1.1rem;
+            margin: 12px 0;
+            word-break: break-word;
+        }
+        .error-container button {
+            margin-top: 30px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            background-color: #ff4c4c;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .error-container button:hover,
+        .error-container button:focus {
+            background-color: #e03b3b;
+            outline: none;
+        }
+        @media (max-width: 600px) {
+            .error-container {
+                padding: 5vw 2vw;
+                margin: 5vh auto;
+            }
+            .error-container h1 {
+                font-size: clamp(1.5rem, 10vw, 2.2rem);
+            }
+            .error-container button {
+                font-size: 0.95rem;
+                padding: 10px 18px;
+            }
+        }
+        @media (max-width: 400px) {
+            .error-container {
+                padding: 3vw 1vw;
+            }
+            .error-container h1 {
+                font-size: clamp(1.2rem, 12vw, 1.5rem);
+            }
+            .error-container button {
+                font-size: 0.9rem;
+                padding: 8px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container" role="alert" aria-live="assertive">
+        <h1>Error {{.StatusCode}}</h1>
+        <p><strong>Message:</strong> {{.Message}}</p>
+        <button onclick="window.location.href='/'" aria-label="Back to Home">Back to Home</button>
+    </div>
+</body>
+</html>
