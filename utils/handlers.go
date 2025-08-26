@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -253,4 +254,117 @@ func (db *DataBase) Register(w http.ResponseWriter, username, email, password st
 	}
 
 	return &user, nil
+}
+
+// PostsHandler handles creating and listing posts.
+func PostsHandler(w http.ResponseWriter, r *http.Request) {
+	uuid, err := GetUserFromCookie(r)
+	if err != nil || uuid == "" {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	if r.Method == http.MethodPost {
+		title := r.FormValue("title")
+		content := r.FormValue("content")
+		if title == "" || content == "" {
+			http.Redirect(w, r, "/posts", http.StatusSeeOther)
+			return
+		}
+		if err := db.CreatePost(uuid, title, content); err != nil {
+			http.Error(w, "Failed to create post", http.StatusInternalServerError)
+			return
+		}
+		http.Redirect(w, r, "/posts", http.StatusSeeOther)
+		return
+	}
+
+	posts, err := db.GetPosts()
+	if err != nil {
+		http.Error(w, "Failed to load posts", http.StatusInternalServerError)
+		return
+	}
+	InitTemplate(w, "templates/posts.html", posts)
+}
+
+// LikeHandler records a like for a post.
+func LikeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/posts", http.StatusSeeOther)
+		return
+	}
+
+	uuid, err := GetUserFromCookie(r)
+	if err != nil || uuid == "" {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.Atoi(r.FormValue("post_id"))
+	if err != nil {
+		http.Redirect(w, r, "/posts", http.StatusSeeOther)
+		return
+	}
+
+	if err := db.ToggleLike(uuid, id, true); err != nil {
+		http.Error(w, "Failed to like post", http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/posts", http.StatusSeeOther)
+}
+
+// DislikeHandler records a dislike for a post.
+func DislikeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/posts", http.StatusSeeOther)
+		return
+	}
+
+	uuid, err := GetUserFromCookie(r)
+	if err != nil || uuid == "" {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.Atoi(r.FormValue("post_id"))
+	if err != nil {
+		http.Redirect(w, r, "/posts", http.StatusSeeOther)
+		return
+	}
+
+	if err := db.ToggleLike(uuid, id, false); err != nil {
+		http.Error(w, "Failed to dislike post", http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/posts", http.StatusSeeOther)
+}
+
+// CommentHandler adds a comment to a post.
+func CommentHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/posts", http.StatusSeeOther)
+		return
+	}
+
+	uuid, err := GetUserFromCookie(r)
+	if err != nil || uuid == "" {
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		return
+	}
+
+	id, err := strconv.Atoi(r.FormValue("post_id"))
+	if err != nil {
+		http.Redirect(w, r, "/posts", http.StatusSeeOther)
+		return
+	}
+	content := r.FormValue("content")
+	if content == "" {
+		http.Redirect(w, r, "/posts", http.StatusSeeOther)
+		return
+	}
+	if err := db.AddComment(uuid, id, content); err != nil {
+		http.Error(w, "Failed to add comment", http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/posts", http.StatusSeeOther)
 }

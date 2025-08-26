@@ -24,6 +24,10 @@ func main() {
 	http.HandleFunc("/logout", utils.LogoutHandler)
 	http.HandleFunc("/guest", utils.GuestHandler)
 	http.HandleFunc("/register", utils.RegisterHandler)
+	http.HandleFunc("/posts", utils.PostsHandler)
+	http.HandleFunc("/like", utils.LikeHandler)
+	http.HandleFunc("/dislike", utils.DislikeHandler)
+	http.HandleFunc("/comment", utils.CommentHandler)
 
 	log.Println("Server running on http://localhost:8080")
 	log.Fatal(http.ListenAndServe(":8080", nil))
